@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: marketPlace
+server:
+  servlet:
+    context-path: /marketPlace
+  port: 8090
