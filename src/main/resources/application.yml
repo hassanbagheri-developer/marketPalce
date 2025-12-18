@@ -5,9 +5,9 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8085/realms/my-realm
+          issuer-uri: http://mysqldb:8085/realms/my-realm
   datasource:
-    url: jdbc:mysql://localhost:3306/hassan?useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://mysqldb:3306/hassan?useSSL=false&allowPublicKeyRetrieval=true
     username: developer
     password: ENC(6xGtbNDwxNUW9O8TeWT+Mx4NPX947sE1)
     driver-class-name: com.mysql.cj.jdbc.Driver
