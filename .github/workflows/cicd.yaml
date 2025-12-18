@@ -1,0 +1,98 @@
+name: marketplace
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+env:
+  #DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+  DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+  IMAGE_NAME: "hassan233/marketplace"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Build Docker Image
+        run: |
+          mvn clean package
+
+      - name: build docker image
+        run: |
+          docker build -t ${{ env.IMAGE_NAME }} .
+          docker build -t ${{ env.IMAGE_NAME }}:1.0.${{ github.run_number }} .
+
+      - name: Log in to DockerHub
+        run: echo "${{ env.DOCKERHUB_TOKEN }}" | docker login -u "hassan233" --password-stdin
+
+      - name: Push Docker Image to DockerHub
+        run: |
+          #TAG_NAME="${{ secrets.ENVIRONMENT }}-backend-1.0.${{ github.run_number }}"
+          docker push ${{ env.IMAGE_NAME }}:latest
+          docker push ${{ env.IMAGE_NAME }}:1.0.${{ github.run_number }}
+
+  append-doc:
+    runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.message, 'docut')
+    steps:
+      - name: Checkout deploy repo
+        uses: actions/checkout@v3
+        with:
+          repository: hassanbagheri-developer/wiki-mount-deployment
+          token: ${{ secrets.TOKEN_GIT }}
+          path: deploy-repo
+          fetch-depth: 0
+
+      - name: Determine next version
+        id: version
+        run: |
+          cd deploy-repo
+          LAST_TAG=$(git tag --list "v*" | sort -V | tail -n 1)
+          if [ -z "$LAST_TAG" ]; then
+            NEXT="v1.0.0"
+          else
+            PATCH=$(echo $LAST_TAG | cut -d. -f3)
+            PATCH=$((PATCH + 1))
+            NEXT="v1.0.$PATCH"
+          fi
+          echo "next=$NEXT" >> $GITHUB_OUTPUT
+
+
+      - name: Append changelog entry
+        run: |
+          cd deploy-repo
+          COMMIT_MESSAGE="${{ github.event.head_commit.message }}"
+          ISSUE=$(echo "$COMMIT_MESSAGE" | grep -oE '[A-Z]+-[0-9]+' || echo "none")
+
+          printf "\nDate: %s\n" "$(date '+%Y-%m-%d %H:%M:%S')" >> CHANGELOG.md
+          printf "\nAuthor: %s\n" "$GITHUB_ACTOR" >> CHANGELOG.md
+          printf "\nMessage: %s\n" "$COMMIT_MESSAGE" >> CHANGELOG.md
+          printf "\nIssue: %s\n" "$ISSUE" >> CHANGELOG.md
+          printf "\n------------------------------------------------\n" >> CHANGELOG.md
+
+
+
+      - name: Convert to PDF
+        run: |
+          cd deploy-repo
+          docker run --rm -v $PWD:/data pandoc/latex CHANGELOG.md -o CHANGELOG.pdf
+
+      - name: Commit & Push to deploy repo
+        run: |
+          cd deploy-repo
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add CHANGELOG.md CHANGELOG.pdf
+          git commit -m "Update PDF & changelog for version ${{ steps.version.outputs.next }}" || echo "No changes to commit"
+          git push origin main
