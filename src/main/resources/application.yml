@@ -1,6 +1,8 @@
 spring:
   application:
     name: marketPlace
+  config:
+    import: optional:configserver:http://localhost:8060
   security:
     oauth2:
       resourceserver:
@@ -41,3 +43,20 @@ jasypt:
     password: mySecretKey123
     algorithm: PBEWithMD5AndDES
     iv-generator-classname: org.jasypt.iv.NoIvGenerator
+
+
+logging:
+  file:
+    name: logs/marketPlace.log
+
+  level:
+    org:
+      zalando:
+        logbook: info
+    # org:
+    #   springframework: INFO
+    # com:
+    #   your:
+    #     package: DEBUG
+    # root: INFO
+
