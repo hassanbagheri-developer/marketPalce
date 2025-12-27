@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class PublicTestController {
 
 
-    @Value("${my.value.myName}")
+    @Value("${my.value.myName:aaa}")
     private String myName;
 
     @GetMapping("/test1")
