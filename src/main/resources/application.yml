@@ -28,6 +28,10 @@ server:
     context-path: /marketPlace
   port: 8090
 
+#my:
+#  value:
+#    myName: Hassan1
+
 
 keycloak:
   realm: my-realm
@@ -60,3 +64,9 @@ logging:
     #     package: DEBUG
     # root: INFO
 
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh

@@ -46,6 +46,8 @@ public class SecurityConfiguration {
                 .requestMatchers(HttpMethod.DELETE,"/public/**").permitAll()
                 .requestMatchers(HttpMethod.PUT,"/public/**").permitAll()
                 .requestMatchers(HttpMethod.GET,"/public/**").permitAll()
+                .requestMatchers(HttpMethod.POST,"/actuator/refresh").permitAll()
+
                 .anyRequest().authenticated());
 
 		http.oauth2ResourceServer(oauth2 -> oauth2
