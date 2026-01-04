@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestController {
 
 
+
     @GetMapping("/test1")
     @PreAuthorize("hasAuthority('api.marketplace.api.test1')")
     public String hello1() {
