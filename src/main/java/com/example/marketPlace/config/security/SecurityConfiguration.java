@@ -47,6 +47,7 @@ public class SecurityConfiguration {
                 .requestMatchers(HttpMethod.PUT,"/public/**").permitAll()
                 .requestMatchers(HttpMethod.GET,"/public/**").permitAll()
                 .requestMatchers(HttpMethod.POST,"/actuator/refresh").permitAll()
+                .requestMatchers("/api/admin/**").hasAuthority(ShopSecurity.MANAGER)
 
                 .anyRequest().authenticated());
 

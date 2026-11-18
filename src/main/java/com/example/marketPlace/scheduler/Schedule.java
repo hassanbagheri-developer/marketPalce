@@ -56,6 +56,11 @@ public class Schedule {
 
             Class<?> targetClass = AopProxyUtils.ultimateTargetClass(bean);
 
+            PreAuthorize classLevel = targetClass.getAnnotation(PreAuthorize.class);
+            if (classLevel != null) {
+                authorities.addAll(parseAuthorities(classLevel.value()));
+            }
+
             for (Method method : targetClass.getDeclaredMethods()) {
 
                 PreAuthorize preAuthorize = method.getAnnotation(PreAuthorize.class);

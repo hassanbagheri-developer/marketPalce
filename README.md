@@ -111,3 +111,27 @@ jar ساخته می‌شود و image به Docker Hub push می‌شود (`hassa
 - [config-server](https://github.com/hassanbagheri-developer/config-server)
 
 </div>
+
+## v3 shop admin API
+
+The API prefix is `/marketPlace/api/admin/shop`. On startup, the existing
+role sync creates the `manager` client role in Keycloak. In realm
+`my-realm`, assign `Clients > marketPlace > manager` under the user's
+role mapping. Sign in through Keycloak using the configured OIDC login
+client and obtain a fresh access token after changing role assignments.
+The token must include `manager` in
+`resource_access.marketPlace.roles`. Send it as `Authorization: Bearer <access_token>`.
+
+| Method and path | Panel operation |
+|---|---|
+| `GET /session` | Verify access and read the signed-in manager's username |
+| `GET /meta`, `GET /dashboard` | Catalog options, sales, recent orders, and stock alerts |
+| `GET /products`, `GET /products/{id}` | Search and filter products, and read product details |
+| `POST /products`, `PUT /products/{id}`, `DELETE /products/{id}` | Create, edit, and delete products |
+| `PATCH /products/{id}/price`, `/stock`, `/status` | Update price, stock, and publication status |
+| `POST /products/{id}/duplicate`, `POST /products/bulk` | Duplicate a product or apply bulk actions |
+| `GET /orders`, `GET /orders/{id}`, `PATCH /orders/{id}/status` | List, view, and update orders |
+
+Expect HTTP 401 for missing or invalid credentials and HTTP 403 for a
+valid token without the shop manager client role. The role grants no
+Keycloak realm administration permissions.

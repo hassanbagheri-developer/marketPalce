@@ -38,7 +38,10 @@ public class CustomJwtGrantedAuthoritiesConverter implements Converter<Jwt, Coll
 			Map<String, List<String>> rolesMap = (Map<String, List<String>>) mapObject;
 			List<String> roles = rolesMap.get("roles");
 			if (roles != null) {
-				roles.forEach(role -> finalRoles.add(new SimpleGrantedAuthority(role)));
+				roles.stream()
+						.filter(role -> !ShopSecurity.MANAGER.equals(role))
+						.map(SimpleGrantedAuthority::new)
+						.forEach(finalRoles::add);
 			}
 	    }
 	}

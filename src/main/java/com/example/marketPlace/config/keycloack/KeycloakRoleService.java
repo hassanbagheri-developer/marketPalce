@@ -1,5 +1,7 @@
 package com.example.marketPlace.config.keycloack;
 
+import com.example.marketPlace.config.security.ShopSecurity;
+import jakarta.ws.rs.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
@@ -35,9 +37,12 @@ public class KeycloakRoleService {
         try {
             rolesResource.get(roleName).toRepresentation();
             log.debug("Role already exists: {}", roleName);
-        } catch (Exception e) {
+        } catch (NotFoundException e) {
             RoleRepresentation role = new RoleRepresentation();
             role.setName(roleName);
+            if (ShopSecurity.MANAGER.equals(roleName)) {
+                role.setDescription("Shop manager: sign in and call shop admin methods only");
+            }
             rolesResource.create(role);
             log.info("🆕 Role created in Keycloak: {}", roleName);
         }
